@@ -16,6 +16,7 @@ function App() {
   const [token, setToken] = useState("");
   const [text, setText] = useState("");
   const [album, setAlbum] = useState([]);
+  const [track, setTrack] = useState([]);
 
   const handleInput = (e) => setText(e.target.value);
   const getItem = async (e) => {
@@ -36,6 +37,14 @@ function App() {
       .catch((err) => console.log(err));
   };
 
+  let selectTrack = (item) => {
+    setTrack((prevState) => [...prevState, item.id]);
+  };
+
+  let deselectTrack = (itemToRemove) => {
+    setTrack(track.filter((item) => item !== itemToRemove.id));
+  };
+
   useEffect(() => {
     const tokens = window.localStorage.getItem("token");
     const hash = window.location.hash;
@@ -48,7 +57,7 @@ function App() {
     } else {
       setToken(tokens);
     }
-  }, []);
+  }, [token]);
   return (
     <div className="App">
       <div className="login-page">
@@ -70,14 +79,27 @@ function App() {
         )}
         {album.length > 0 && (
           <>
-            {album.map((item) => (
-              <Album
-                key={item.id}
-                albumImage={item.images[0].url}
-                albumTitle={item.name}
-                albumArtist={item.artists[0].name}
-              />
-            ))}
+            {album.map((item) => {
+              return track.includes(item.id) ? (
+                <Album
+                  key={item.id}
+                  albumImage={item.images[0].url}
+                  albumTitle={item.name}
+                  albumArtist={item.artists[0].name}
+                  clickMe={() => deselectTrack(item)}
+                  isSelect={false}
+                />
+              ) : (
+                <Album
+                  key={item.id}
+                  albumImage={item.images[0].url}
+                  albumTitle={item.name}
+                  albumArtist={item.artists[0].name}
+                  clickMe={() => selectTrack(item)}
+                  isSelect={true}
+                />
+              );
+            })}
           </>
         )}
       </div>
