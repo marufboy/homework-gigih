@@ -1,4 +1,4 @@
-const Album = ({albumImage, albumTitle, albumArtist}) => (
+const Album = ({albumImage, albumTitle, albumArtist, clickMe, isSelect}) => (
     <div className="playlistItem">
       <div className="headerLogo">
         <img className="logo" src={albumImage} alt="Logo" />
@@ -6,7 +6,7 @@ const Album = ({albumImage, albumTitle, albumArtist}) => (
       <div className="headerDesc">
         <h1>{albumTitle}</h1>
         <p>Artist : {albumArtist}</p>
-        <button className="btnSelect">Select</button>
+        <button className="btnSelect" onClick={clickMe}>{isSelect ? 'Select' : 'Deselect'}</button>
       </div>
     </div>
   );
