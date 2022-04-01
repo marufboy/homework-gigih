@@ -37,13 +37,24 @@ function App() {
       .catch((err) => console.log(err));
   };
 
-  let selectTrack = (item) => {
-    setTrack((prevState) => [...prevState, item.id]);
-  };
+  // const selectTrack = (item) => {
+  //   setTrack((prevState) => [...prevState, item.id]);
+  // };
 
-  let deselectTrack = (itemToRemove) => {
-    setTrack(track.filter((item) => item !== itemToRemove.id));
-  };
+  // const deselectTrack = (itemToRemove) => {
+  //   setTrack(track.filter((item) => item !== itemToRemove.id));
+  // };
+
+  const hadleSelected = (id) => {
+    const alreadySelected = track.find((selectedId) => selectedId === id);
+    if(alreadySelected){
+      const filterSelected = track.filter((item) => item !== id)
+      setTrack(filterSelected);
+    }else{
+      setTrack((prevState) => [...prevState, id]);
+    }
+  }
+
 
   useEffect(() => {
     const tokens = window.localStorage.getItem("token");
@@ -86,7 +97,7 @@ function App() {
                   albumImage={item.images[0].url}
                   albumTitle={item.name}
                   albumArtist={item.artists[0].name}
-                  clickMe={() => deselectTrack(item)}
+                  clickMe={() => hadleSelected(item.id)}
                   isSelect={false}
                 />
               ) : (
@@ -95,7 +106,7 @@ function App() {
                   albumImage={item.images[0].url}
                   albumTitle={item.name}
                   albumArtist={item.artists[0].name}
-                  clickMe={() => selectTrack(item)}
+                  clickMe={() => hadleSelected(item.id)}
                   isSelect={true}
                 />
               );
