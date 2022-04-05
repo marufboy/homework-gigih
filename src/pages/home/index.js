@@ -6,6 +6,8 @@ import Login from "../../components/login";
 import SearchBar from "../../components/searchBar";
 import CreatePlaylist from "../../components/createPlaylist";
 import TabButton from "../../components/tabButton";
+import { useDispatch, useSelector } from "react-redux";
+import { setToken } from "../../redux/tokenSlice";
 
 const spotify = Credential();
 const loginEndPoint = `${spotify.AuthEndPoint}client_id=${
@@ -15,7 +17,7 @@ const loginEndPoint = `${spotify.AuthEndPoint}client_id=${
 )}&response_type=token&show_dialog=true`;
 
 const Home = () => {
-  const [token, setToken] = useState("");
+  // const [token, setToken] = useState("");
   const [user, setUser] = useState([]);
   const [search, setSearch] = useState("");
   const [album, setAlbum] = useState([]);
@@ -26,6 +28,9 @@ const Home = () => {
     description: "",
   });
 
+  const globToken = useSelector((state) => state.token.value);
+  const dispatch = useDispatch();
+
   const handleInput = (e) => setSearch(e.target.value);
   //get search track from search bar
   const getItem = async (e) => {
@@ -35,7 +40,8 @@ const Home = () => {
         params: { limit: 15, offset: 0 },
         headers: {
           Accept: "application/json",
-          Authorization: "Bearer " + token,
+          // Authorization: "Bearer " + token,
+          Authorization: "Bearer " + globToken,
           "Content-Type": "application/json",
         },
       })
@@ -52,13 +58,13 @@ const Home = () => {
     const hash = window.location.hash;
     window.location.hash = "";
     // check token & hash
-    if (!token && hash) {
+    if (!globToken && hash) {
       const _token = hash.split("&")[0].split("=")[1];
       window.localStorage.setItem("token", _token);
-      setToken(_token);
+      // setToken(_token);
       return _token;
     } else {
-      setToken(tokens);
+      // setToken(tokens);
       return tokens;
     }
   };
@@ -67,6 +73,7 @@ const Home = () => {
   const getUser = async () => {
     let accessToken = await getAccessToken();
     if (accessToken !== "") {
+      dispatch(setToken(accessToken));
       axios
         .get(`https://api.spotify.com/v1/me`, {
           headers: {
@@ -107,7 +114,8 @@ const Home = () => {
         .post(`https://api.spotify.com/v1/users/${user}/playlists`, data, {
           headers: {
             Accept: "application/json",
-            Authorization: "Bearer " + token,
+            // Authorization: "Bearer " + token,
+            Authorization: "Bearer " + globToken,
             "Content-Type": "application/json",
           },
         })
@@ -119,7 +127,8 @@ const Home = () => {
             {
               headers: {
                 Accept: "application/json",
-                Authorization: "Bearer " + token,
+                // Authorization: "Bearer " + token,
+                Authorization: "Bearer " + globToken,
                 "Content-Type": "application/json",
               },
             }
@@ -155,8 +164,8 @@ const Home = () => {
   return (
     <div className="login-page">
       <Login loginEndPoint={loginEndPoint} />
-      <TabButton handleTab={handleTab}/>
-      {token !== "" && (
+      <TabButton handleTab={handleTab} />
+      {globToken !== "" && (
         <>
           {boolTab ? (
             <SearchBar handleInput={handleInput} getItem={getItem} />
