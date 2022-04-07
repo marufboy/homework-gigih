@@ -5,9 +5,10 @@ const Login = ({loginEndPoint}) => (
       alt="logo-spotify"
       className="logo-spotify"
     />
-    <a href={loginEndPoint}>
+    {/* <a href={loginEndPoint}>
       <div className="login-btn">LOG IN</div>
-    </a>
+    </a> */}
+    <button className="login-btn" onClick={loginEndPoint}>LOG IN</button>
   </>
 );
 

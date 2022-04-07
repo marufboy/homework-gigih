@@ -1,13 +1,10 @@
-import { useEffect, useState } from "react";
 import { Credential } from "../../Credential";
-import axios from "axios";
-import Album from "../../components/album";
 import Login from "../../components/login";
-import SearchBar from "../../components/searchBar";
-import CreatePlaylist from "../../components/createPlaylist";
-import TabButton from "../../components/tabButton";
 import { useDispatch, useSelector } from "react-redux";
 import { setToken } from "../../redux/tokenSlice";
+import { useEffect } from "react";
+import { Switch, Route, Redirect, useHistory} from "react-router-dom";
+import MyPlaylistPage from "../myPlaylistPage";
 
 const spotify = Credential();
 const loginEndPoint = `${spotify.AuthEndPoint}client_id=${
@@ -17,189 +14,53 @@ const loginEndPoint = `${spotify.AuthEndPoint}client_id=${
 )}&response_type=token&show_dialog=true`;
 
 const Home = () => {
-  // const [token, setToken] = useState("");
-  const [user, setUser] = useState([]);
-  const [search, setSearch] = useState("");
-  const [album, setAlbum] = useState([]);
-  const [tracks, setTracks] = useState([]);
-  const [boolTab, setBoolTab] = useState(true);
-  const [playlist, setPlaylist] = useState({
-    name: "",
-    description: "",
-  });
-
   const globToken = useSelector((state) => state.token.value);
   const dispatch = useDispatch();
-
-  const handleInput = (e) => setSearch(e.target.value);
-  //get search track from search bar
-  const getItem = async (e) => {
-    e.preventDefault();
-    axios
-      .get(`https://api.spotify.com/v1/search?q=${search}&type=track`, {
-        params: { limit: 15, offset: 0 },
-        headers: {
-          Accept: "application/json",
-          // Authorization: "Bearer " + token,
-          Authorization: "Bearer " + globToken,
-          "Content-Type": "application/json",
-        },
-      })
-      .then((res) => {
-        const items = res.data.tracks.items;
-        setAlbum(items);
-      })
-      .catch((err) => console.log(err));
-  };
+  let history = useHistory();
 
   //get access token from login
-  const getAccessToken = async () => {
-    const tokens = window.localStorage.getItem("token");
-    const hash = window.location.hash;
-    window.location.hash = "";
-    // check token & hash
-    if (!globToken && hash) {
-      const _token = hash.split("&")[0].split("=")[1];
-      window.localStorage.setItem("token", _token);
-      // setToken(_token);
-      return _token;
-    } else {
-      // setToken(tokens);
-      return tokens;
+  const handleLogin = () => {
+    if (!globToken) {
+      window.location.href = loginEndPoint;
+      console.log("this is no token");
     }
   };
 
-  //get user data spotify
-  const getUser = async () => {
-    let accessToken = await getAccessToken();
-    if (accessToken !== "") {
-      dispatch(setToken(accessToken));
-      axios
-        .get(`https://api.spotify.com/v1/me`, {
-          headers: {
-            Accept: "application/json",
-            Authorization: "Bearer " + accessToken,
-            "Content-Type": "application/json",
-          },
-        })
-        .then((res) => setUser(res.data.id));
-    } else {
-      return;
-    }
-  };
-
-  const hadleSelected = (id) => {
-    const alreadySelected = tracks.find((selectedId) => selectedId === id);
-    if (alreadySelected) {
-      const filterSelected = tracks.filter((item) => item !== id);
-      setTracks(filterSelected);
-    } else {
-      setTracks((selectedTrack) => [...selectedTrack, id]);
-    }
-  };
-
-  const handleCreatePlaylist = async (e) => {
-    e.preventDefault();
-    if (
-      playlist.name !== "" &&
-      playlist.description !== "" &&
-      tracks.length > 0
-    ) {
-      const data = {
-        name: playlist.name,
-        description: playlist.description,
-        public: false,
-      };
-      axios
-        .post(`https://api.spotify.com/v1/users/${user}/playlists`, data, {
-          headers: {
-            Accept: "application/json",
-            // Authorization: "Bearer " + token,
-            Authorization: "Bearer " + globToken,
-            "Content-Type": "application/json",
-          },
-        })
-        .then((res) => {
-          const playlistID = res.data.id;
-          axios.post(
-            `https://api.spotify.com/v1/users/${user}/playlists/${playlistID}/tracks`,
-            tracks,
-            {
-              headers: {
-                Accept: "application/json",
-                // Authorization: "Bearer " + token,
-                Authorization: "Bearer " + globToken,
-                "Content-Type": "application/json",
-              },
-            }
-          );
-        })
-        .catch((err) => console.log(err.message));
-
-      //   console.log(playlist);
-      alert("Successfully added playlist");
-    } else {
-      alert("Please add your select playlist");
-      setPlaylist({ name: "", description: "" });
-    }
-  };
-
-  const handleFormChange = (e) => {
-    const { name, value } = e.target;
-    setPlaylist({ ...playlist, [name]: value });
-  };
-
-  const handleTab = (e) => {
-    if (e.target.value === "search") {
-      setBoolTab(true);
-    } else {
-      setBoolTab(false);
-    }
+  const getAccessToken = (hash) => {
+    const stringAfterHash = hash.substring(1);
+    const paramsInUrl = stringAfterHash.split("&");
+    return paramsInUrl.reduce((acc, curVal) => {
+      const [key, value] = curVal.split("=");
+      acc[key] = value;
+      return acc;
+    }, {});
   };
 
   useEffect(() => {
-    getUser();
+    if (window.location.hash) {
+      const { access_token, expires_in, token_type } = getAccessToken(
+        window.location.hash
+      );
+      localStorage.setItem("accessToken", access_token);
+      localStorage.setItem("tokenType", token_type);
+      localStorage.setItem("expiresIn", expires_in);
+      dispatch(setToken(access_token));
+
+      history.push("/create-playlist");
+      window.location.hash = "";
+    }
   }, []);
 
   return (
     <div className="login-page">
-      <Login loginEndPoint={loginEndPoint} />
-      <TabButton handleTab={handleTab} />
-      {globToken !== "" && (
-        <>
-          {boolTab ? (
-            <SearchBar handleInput={handleInput} getItem={getItem} />
-          ) : (
-            <CreatePlaylist
-              playlist={playlist}
-              handleFormChange={handleFormChange}
-              handleSubmit={handleCreatePlaylist}
-            />
-          )}
-        </>
-      )}
-      {album.length > 0 &&
-        album.map((item) => {
-          return tracks.includes(item.uri) ? (
-            <Album
-              key={item.uri}
-              albumImage={item.album.images[0].url}
-              albumTitle={item.name}
-              albumArtist={item.artists[0].name}
-              clickMe={() => hadleSelected(item.uri)}
-              isSelect={false}
-            />
-          ) : (
-            <Album
-              key={item.uri}
-              albumImage={item.album.images[0].url}
-              albumTitle={item.name}
-              albumArtist={item.artists[0].name}
-              clickMe={() => hadleSelected(item.uri)}
-              isSelect={true}
-            />
-          );
-        })}
+      <Switch>
+        <Route path={"/create-playlist"}>
+          {globToken ? <MyPlaylistPage /> : <Redirect to={"/"} />}
+        </Route>
+        <Route exact path={'/'}>
+          <Login loginEndPoint={handleLogin} />
+        </Route>
+      </Switch>
     </div>
   );
 };
