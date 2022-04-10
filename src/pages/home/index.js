@@ -49,6 +49,7 @@ const Home = () => {
       history.push("/create-playlist");
       window.location.hash = "";
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
