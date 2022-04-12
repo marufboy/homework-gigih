@@ -6,7 +6,7 @@ const Album = ({albumImage, albumTitle, albumArtist, clickMe, isSelect}) => (
       <div className="headerDesc">
         <h1>{albumTitle}</h1>
         <p>Artist : {albumArtist}</p>
-        <button className="btnSelect" onClick={clickMe}>{isSelect ? 'Select' : 'Deselect'}</button>
+        <button className="btn-select" onClick={clickMe}>{isSelect ? 'Select' : 'Deselect'}</button>
       </div>
     </div>
   );
