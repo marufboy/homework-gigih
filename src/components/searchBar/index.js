@@ -1,6 +1,8 @@
-const SearchBar = ({handleInput, getItem}) => (
+import SearchFieldCustom from "../module/searchFieldCustom";
+
+const SearchBar = ({ handleInput, getItem }) => (
   <form className="container" onSubmit={getItem}>
-    <input className="searchBar" onChange={handleInput} />
+    <SearchFieldCustom handleInput={handleInput}/>
     <button className="searchButton" type="submit">
       Search
     </button>

@@ -1,3 +1,6 @@
+import ButtonCustom from '../module/buttonCustom'
+// import Button from '@mui/material/Button'
+
 const Login = ({loginEndPoint}) => (
   <>
     <img
@@ -5,10 +8,7 @@ const Login = ({loginEndPoint}) => (
       alt="logo-spotify"
       className="logo-spotify"
     />
-    {/* <a href={loginEndPoint}>
-      <div className="login-btn">LOG IN</div>
-    </a> */}
-    <button className="login-btn" onClick={loginEndPoint}>LOG IN</button>
+    <ButtonCustom name={'LOG IN'} onClick={loginEndPoint}/>
   </>
 );
 
