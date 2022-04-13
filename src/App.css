@@ -9,9 +9,18 @@
 
 .container {
   display: flex;
+  height: 200px;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  justify-content: space-evenly;
+}
+
+.container-form{
+  display: flex;
+  height: 200px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
 }
 
 .album-container{
@@ -23,6 +32,7 @@
 }
 
 .row{
+  height: 80px;
   width: 50vh;
   margin-top: 20px;
   flex-direction: row;
@@ -31,17 +41,20 @@
 
 .logo-spotify {
   width: 30%;
+  margin-top: 50px;
+  margin-bottom: 10vh;
 }
 
-.login-btn {
-  width: 200px;
-  padding: 15px 0px;
-  text-align: center;
-  background-color: #fefefe;
-  border-radius: 50px;
-  color: #1f1f1f;
-  font-weight: 600;
-  margin-top: 10%;
+.neutral-btn {
+  max-width: 150px;
+  background-color: aquamarine;
+  border: none;
+  color: black;
+  padding: 5px 12px;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  border-radius: 10px;
 }
 
 a {
